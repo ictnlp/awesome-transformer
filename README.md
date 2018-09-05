@@ -6,6 +6,8 @@
 
 A collection of transformer's guides, implementations and so on(For those who want to do some research using transformer as a baseline or simply reproduce paper's performance).
 
+Please feel free to pull requests or report issues.
+
 ## Why this project?
 
 Transformer is a powerful model applied in sequence to sequence learning. However, when I was using transformer as my baseline in NMT research I found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means my research would be unauthentic. I searched on the Internet, found some implementations, obtained some performance-reproducable approaches and other materials, which eventually formed this project.
