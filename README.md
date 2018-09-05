@@ -48,7 +48,7 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 
     - [code](https://github.com/jadore801120/attention-is-all-you-need-pytorch)
 
-2. Harvald NLP Group's annotation   
+2. Harvard NLP Group's annotation   
 
     - [code](http://nlp.seas.harvard.edu/2018/04/03/attention.html)
 
