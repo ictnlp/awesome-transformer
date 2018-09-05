@@ -1,4 +1,4 @@
-<p align="center"><img src="http://o9h9w1ysg.bkt.clouddn.com/blog/180905/bIcGg65d05.jpg"></p>
+<p align="center"><img src="http://o9h9w1ysg.bkt.clouddn.com/blog/180905/ecLK7hbl8L.jpg"></p>
 
 <p align="center">
 <a href="https://raw.githubusercontent.com/SkyAndCloud/awesome-transformer/master/LICENSE"><img src="https://img.shields.io/cocoapods/l/Kingfisher.svg?style=flat"></a>
@@ -10,7 +10,7 @@ Please feel free to pull requests or report issues.
 
 ## Why this project?
 
-Transformer is a powerful model applied in sequence to sequence learning. However, when I was using transformer as my baseline in NMT research I found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means my research would be unauthentic. I searched on the Internet, found some implementations, obtained some performance-reproducable approaches and other materials, which eventually formed this project.
+Transformer is a powerful model applied in sequence to sequence learning. However, when we were using transformer as our baseline in NMT research we found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means our research would be unauthentic. We found some implementations, obtained corresponding performance-reproducable approaches and other materials, which eventually formed this project.
 
 ## Papers
 
@@ -36,11 +36,11 @@ Transformer is a powerful model applied in sequence to sequence learning. Howeve
 
 ## Implementations & How to reproduce paper's result?
 
-Indeed there are lots of transformer implementations on the Internet, in order to simplify learning curve, here I only include **the most valuable** projects.
+Indeed there are lots of transformer implementations on the Internet, in order to simplify learning curve, here we only include **the most valuable** projects.
 
 >**[Note]**: In transformer original paper, there are *WMT14 English-German*, *WMT14 English-French* two results
     ![results](http://o9h9w1ysg.bkt.clouddn.com/blog/180904/B4mbH19CBD.png)
-Here I regard a implementation as performance-reproducable **if there exists approaches to reproduce WMT14 English-German BLEU score**. Therefore, I'll also support corresponding approach to reproduce *WMT14 English-German* result.
+Here we regard a implementation as performance-reproducable **if there exists approaches to reproduce WMT14 English-German BLEU score**. Therefore, we'll also support corresponding approach to reproduce *WMT14 English-German* result.
 
 ### Minimal, paper-equavalent but not certainly performance-reproducable implementations(both *PyTorch* implementations)
 
@@ -56,7 +56,7 @@ Here I regard a implementation as performance-reproducable **if there exists app
 
 Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count`
     
-I recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
+We recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
 
 The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base_v2` function.
@@ -69,7 +69,7 @@ The transformer paper's original model settings can be found in [tensor2tensor t
 
 ##### Code annotation
 
-- [“变形金刚”为何强大：从模型到代码全面解析Google Tensor2Tensor系统](https://cloud.tencent.com/developer/article/1153079)(only Chinese version, contributed by [@zhangjcqq](https://github.com/zhangjcqq), corresponding to tensor2tensor v1.6.3)
+- [“变形金刚”为何强大：从模型到代码全面解析Google Tensor2Tensor系统](https://cloud.tencent.com/developer/article/1153079)(only Chinese version, corresponding to tensor2tensor v1.6.3)
 
 ##### Steps to reproduce WMT14 English-German result:
 
@@ -220,7 +220,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
     You can find `<model_file>`in step 1's downloaded archive.
     
-    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually I prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if I have to use TensorFlow because it is original.
+    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow because it is original.
 
 ##### Resources
 
@@ -257,8 +257,9 @@ Note that this implementation's code doesn't have `-accum_count`-like feature as
 - RNMT+: [The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation](https://arxiv.org/abs/1804.09849)
 - Turing-complete Transformer: [Universal Transformer](https://arxiv.org/abs/1807.03819)
 
-## Contact
+## Contributors
 
-- Email: <1464871881@qq.com>
-- [Twitter](https://twitter.com/yongshan10)
-- [Weibo](https://weibo.com/5453908874/profile?topnav=1&wvr=6)
+This project is developed and maintained by Natural Language Processing Group, ICT/CAS.
+
+- [Yong Shan](https://github.com/SkyAndCloud)
+- [Jinchao Zhang](https://github.com/zhangjcqq)
