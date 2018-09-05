@@ -6,24 +6,22 @@
 
 A collection of transformer's guides, implementations and so on(For those who want to do some research using transformer as a baseline or simply reproduce paper's performance).
 
-[TOC]
-
 ## Why this project?
 
-Transformer is a powerful model applied in sequence to sequence learning. However, when I was using transformer as my baseline in NMT research I found no good & reliable guide to reproduce approximate result as reported in original paper(even official [tensor2tensor](#t2t) implementation), which means my research would be unauthentic. I searched on the Internet, found some implementations, obtained some performance-reproducable approaches and other materials, which eventually formed this project.
+Transformer is a powerful model applied in sequence to sequence learning. However, when I was using transformer as my baseline in NMT research I found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means my research would be unauthentic. I searched on the Internet, found some implementations, obtained some performance-reproducable approaches and other materials, which eventually formed this project.
 
 ## Papers
 
 ### NMT Basic
 - seq2seq model: [Sequence to Sequence Learning with Neural Networks](https://arxiv.org/abs/1409.3215)
-- seq2seq & attention: [Neural Machine Translation by Jointly Learning to Align and Translate(https://arxiv.org/abs/1409.0473)
+- seq2seq & attention: [Neural Machine Translation by Jointly Learning to Align and Translate](https://arxiv.org/abs/1409.0473)
 - refined attention: [Effective Approaches to Attention-based Neural Machine Translation](http://arxiv.org/abs/1508.04025)
 - seq2seq using CGRU: [DL4MT](https://github.com/nyu-dl/dl4mt-tutorial)
-- GNMT: [Google’s Neural Machine Translation System: Bridging the Gap between Human and Machine Translation(https://arxiv.org/abs/1609.08144)
+- GNMT: [Google’s Neural Machine Translation System: Bridging the Gap between Human and Machine Translation](https://arxiv.org/abs/1609.08144)
 - bytenet: [Neural Machine Translation in Linear Time](https://arxiv.org/abs/1610.10099)
 - convolutional-style NMT: [Convolutional Sequence to Sequence Learning](https://arxiv.org/abs/1705.03122)
 - bpe: [Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909)
-- word piece: [Japanese and Korean Voice Search]](https://ieeexplore.ieee.org/document/6289079/)
+- word piece: [Japanese and Korean Voice Search](https://ieeexplore.ieee.org/document/6289079/)
 - self attention paper: [A Structured Self-attentive Sentence Embedding](https://arxiv.org/abs/1703.03130)
 
 ### Transformer original paper
@@ -54,14 +52,14 @@ Here I regard a implementation as performance-reproducable **if there exists app
 
 ### Complex, performance-reproducable implementations
 
-Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in [OpenNMT-py](#accum_count) `-accum_count`
+Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count`
     
 I recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
 
 The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base_v2` function.
 
-#### <span id="t2t">Paper's original implementation: tensor2tensor(using *TensorFlow*)</span>
+#### <a id="t2t"/>Paper's original implementation: tensor2tensor(using *TensorFlow*)
 
 ##### Code
 
@@ -73,7 +71,7 @@ The transformer paper's original model settings can be found in [tensor2tensor t
 
 ##### Steps to reproduce WMT14 English-German result:
 
-Note that this implementation's code doesn't have `-accum_count`-like feature as [OpenNMT-py](#accum_count), so you can **either train on 8 GPUs or modify code to add this feature.**
+Note that this implementation's code doesn't have `-accum_count`-like feature as <a href="accum_count">OpenNMT-py</a>, so you can **either train on 8 GPUs or modify code to add this feature.**
 
 ```shell
 # 1. Install tensor2tensor toolkit
@@ -135,7 +133,7 @@ perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32
 - [t2t issue 317](https://github.com/tensorflow/tensor2tensor/issues/317)
 - [Tensor2Tensor for Neural Machine Translation](https://arxiv.org/abs/1803.07416)
 
-#### <span id="opennmt">Harvald NLP Group's implementation: OpenNMT-py(using *PyTorch*)</span>
+#### Harvald NLP Group's implementation: OpenNMT-py(using *PyTorch*)
 
 ##### Code
 
@@ -197,7 +195,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         -gpuid 0 1 2 3 
     ```
     
-    <span id="accum_count">Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.</span>
+    <a id="accum_count"/>Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.
         
 4. Translate. For example:
     ```shell
@@ -220,7 +218,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
     You can find `<model_file>`in step 1's downloaded archive.
     
-    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually I prefer [tensor2tensor](#t2t) as a baseline to reproduce paper's result if I have to use TensorFlow because it is original.
+    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually I prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if I have to use TensorFlow because it is original.
 
 ##### Resources
 
@@ -235,13 +233,13 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
 ##### Steps to reproduce WMT14 English-German result:
 
-Note that this implementation's code doesn't have `-accum_count`-like feature as [OpenNMT-py](#opennmt), so you can **either train on 8 GPUs or modify code to add this feature.**
+Note that this implementation's code doesn't have `-accum_count`-like feature as <a href="accum_count">OpenNMT-py</a>), so you can **either train on 8 GPUs or modify code to add this feature.**
 
-- <span id="instruction">[fairseq-py instruction](https://github.com/pytorch/fairseq/tree/master/examples/translation)</span>
+- <a id="instruction">fairseq-py instruction(https://github.com/pytorch/fairseq/tree/master/examples/translation)</span>
 
 ##### Resources
 
-- [fairseq-py issue](https://github.com/pytorch/fairseq/issues/202). The corpus problem described in the issue has been fixed now, so we can directly follow the [instruction](#instruction).
+- [fairseq-py issue](https://github.com/pytorch/fairseq/issues/202). The corpus problem described in the issue has been fixed now, so we can directly follow the <a href="#instruction">instruction</a>.
 
 ### Complex, not certainly performance-reproducable implementations
 
