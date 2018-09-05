@@ -10,7 +10,7 @@ Please feel free to pull requests or report issues.
 
 ## Why this project?
 
-Transformer is a powerful model applied in sequence to sequence learning. However, when we were using transformer as our baseline in NMT research we found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means our research would be unauthentic. We found some implementations, obtained corresponding performance-reproducable approaches and other materials, which eventually formed this project.
+Transformer is a powerful model applied in sequence to sequence learning. However, when we were using transformer as our baseline in NMT research we found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means our research would be unauthentic. We collected some implementations, obtained corresponding performance-reproducable approaches and other materials, which eventually formed this project.
 
 ## Papers
 
@@ -205,14 +205,14 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     -length_penalty wu -coverage_penalty wu -share_vocab vocab_file -max_length 200 -src newstest2014.en.32kspe
     ```
         
-    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. Here we can use sentencepiece to encode `newstest2014.en` manually. 
+    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. 
     ```shell
     spm_encode --model=<model_file> --output_format=piece < newstest2014.en > newstest2014.en.32kspe
     ```
 
     You can set `-batch_size`(default 30) larger to boost the translation.
         
-5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be encoded by sentencepiece, so we need a decoding procecss. **Note that there must be sentencepiece installed.**
+5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure. **Note that there must be sentencepiece installed.**
     For example: 
     ```shell
     spm_decode --model=<model_file> --input_format=piece < input > output
