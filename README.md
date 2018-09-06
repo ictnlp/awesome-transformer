@@ -135,7 +135,7 @@ perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32
 - [t2t issue 317](https://github.com/tensorflow/tensor2tensor/issues/317)
 - [Tensor2Tensor for Neural Machine Translation](https://arxiv.org/abs/1803.07416)
 
-#### Harvald NLP Group's implementation: OpenNMT-py(using *PyTorch*)
+#### Harvard NLP Group's implementation: OpenNMT-py(using *PyTorch*)
 
 ##### Code
 
