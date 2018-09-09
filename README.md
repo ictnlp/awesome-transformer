@@ -224,7 +224,8 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 ##### Resources
 
-- [OpenNMT-py issue](https://github.com/OpenNMT/OpenNMT-py/issues/637)
+- [OpenNMT-py FAQ](http://opennmt.net/OpenNMT-py/FAQ.html)
+- [OpenNMT-py issue](https://github.com/OpenNMT/OpenNMT-py/issues/637)(deprecated)
 - [OpenNMT: Open-Source Toolkit for Neural Machine Translation](https://arxiv.org/abs/1701.02810)
 
 #### FAIR's implementation: fairseq-py(using *PyTorch*)
