@@ -59,7 +59,7 @@ Because transformer's original implementation should run on **8 GPU** to replica
 We recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
 
-The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base_v2` function.
+The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base` function.
 
 #### <a id="t2t"/>Paper's original implementation: tensor2tensor(using *TensorFlow*)
 
@@ -147,7 +147,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 1. Download [corpus preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz), [sentencepiece model preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp_model.tar.gz). Note that the preprocess procedure includes tokenization, bpe/word-piece operation(here using [sentencepiece](https://github.com/google/sentencepiece) powered by Google which implements word-piece algorithm), see [OpenNMT-tf script](https://github.com/OpenNMT/OpenNMT-tf/blob/master/scripts/wmt/prepare_data.sh) for more details.
         
-2. Preprocess. Make sure you use a sequence length of 100 and -share_vocab. 
+2. Preprocess. Make sure you use a sequence length of 100 and -share_vocab.
     For example:
     
     ```shell
@@ -205,14 +205,14 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     -length_penalty wu -coverage_penalty wu -share_vocab vocab_file -max_length 200 -src newstest2014.en.32kspe
     ```
         
-    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. 
+    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. **Note that there must be sentencepiece installed.**
     ```shell
     spm_encode --model=<model_file> --output_format=piece < newstest2014.en > newstest2014.en.32kspe
     ```
 
     You can set `-batch_size`(default 30) larger to boost the translation.
         
-5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure. **Note that there must be sentencepiece installed.**
+5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure. 
     For example: 
     ```shell
     spm_decode --model=<model_file> --input_format=piece < input > output
