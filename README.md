@@ -168,12 +168,14 @@ perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32
         
 ##### Steps to reproduce WMT14 English-German result:
 
-For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)
+For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)  
+
+As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
 
 1. Download [corpus preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz), [sentencepiece model preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp_model.tar.gz). Note that the preprocess procedure includes tokenization, bpe/word-piece operation(here using [sentencepiece](https://github.com/google/sentencepiece) powered by Google which implements word-piece algorithm), see [OpenNMT-tf script](https://github.com/OpenNMT/OpenNMT-tf/blob/master/scripts/wmt/prepare_data.sh) for more details.
         
-2. Preprocess. Make sure you use a sequence length of `100` and `-share_vocab`.
-    For example:
+2. Preprocess. Make sure you use a sequence length of `100` and `-share_vocab`.  
+   For example:
     
     ```shell
     python preprocess.py \
@@ -225,34 +227,30 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     <a id="accum_count"/>Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.
         
 4. Translate. For example:
-
+   You can set `-batch_size`(default `30`) larger to boost the translation.
+   
     ```shell
     python translate.py -gpu 0 -replace_unk -alpha 0.6 -beta 0.0 -beam_size 5 \
     -length_penalty wu -coverage_penalty wu -share_vocab vocab_file -max_length 200 -src newstest2014.en.32kspe
     ```
         
-    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. **Note that there must be sentencepiece installed.**
+    Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. You can find `<model_file>`in step 1's downloaded archive.
     
     ```shell
     spm_encode --model=<model_file> --output_format=piece < newstest2014.en > newstest2014.en.32kspe
     ```
-
-    You can set `-batch_size`(default `30`) larger to boost the translation.
         
-5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure. 
+5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure to obtain a detokenized plain prediction. 
     For example: 
+    
     ```shell
     spm_decode --model=<model_file> --input_format=piece < input > output
     ```
-        
-    You can find `<model_file>`in step 1's downloaded archive.
-    
-    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
 
 ##### Resources
 
 - [OpenNMT-py FAQ](http://opennmt.net/OpenNMT-py/FAQ.html)
-- [OpenNMT-py issue](https://github.com/OpenNMT/OpenNMT-py/issues/637)(deprecated)
+- ~~[OpenNMT-py issue](https://github.com/OpenNMT/OpenNMT-py/issues/637)(deprecated)~~
 - [OpenNMT: Open-Source Toolkit for Neural Machine Translation](https://arxiv.org/abs/1701.02810)
 
 #### FAIR's implementation: fairseq-py(using *PyTorch*)
