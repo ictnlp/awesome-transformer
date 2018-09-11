@@ -79,12 +79,14 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 
 ### Complex, performance-reproducable implementations
 
-Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count`
+Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count`.
     
 We recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
 
 The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base` function.
+
+As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction but we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
 
 #### <a id="t2t"/>Paper's original implementation: tensor2tensor(using *TensorFlow*)
 
@@ -168,9 +170,7 @@ perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32
         
 ##### Steps to reproduce WMT14 English-German result:
 
-For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)  
-
-As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
+For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)
 
 1. Download [corpus preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz), [sentencepiece model preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp_model.tar.gz). Note that the preprocess procedure includes tokenization, bpe/word-piece operation(here using [sentencepiece](https://github.com/google/sentencepiece) powered by Google which implements word-piece algorithm), see [OpenNMT-tf script](https://github.com/OpenNMT/OpenNMT-tf/blob/master/scripts/wmt/prepare_data.sh) for more details.
         
@@ -226,7 +226,7 @@ As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/s
     
     <a id="accum_count"/>Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.
         
-4. Translate. For example:
+4. Translate. For example:  
    You can set `-batch_size`(default `30`) larger to boost the translation.
    
     ```shell
@@ -279,7 +279,7 @@ Note that this implementation's code doesn't have `-accum_count`-like feature as
 
 ## Further
 
-- [Transformer's latest papers](http://arxiv-sanity.com/search?q=transformer)
+- [NMT's latest papers](http://arxiv-sanity.com/search?q=machine+translation)
 - RNMT+: [The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation](https://arxiv.org/abs/1804.09849)
 - Turing-complete Transformer: [Universal Transformer](https://arxiv.org/abs/1807.03819)
 
