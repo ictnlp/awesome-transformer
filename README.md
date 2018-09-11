@@ -8,6 +8,31 @@ A collection of transformer's guides, implementations and so on(For those who wa
 
 Please feel free to pull requests or report issues.
 
+* [Why this project?](#why-this-project)
+* [Papers](#papers)
+    * [NMT Basic](#nmt-basic)
+    * [Transformer original paper](#transformer-original-paper)
+* [Implementations &amp; How to reproduce paper's result?](#implementations--how-to-reproduce-papers-result)
+    * [Minimal, paper-equavalent but not certainly performance-reproducable implementations(both <em>PyTorch</em> implementations)](#minimal-paper-equavalent-but-not-certainly-performance-reproducable-implementationsboth-pytorch-implementations)
+    * [Complex, performance-reproducable implementations](#complex-performance-reproducable-implementations)
+        * <a href="#t2t">Paper's original implementation: tensor2tensor(using <em>TensorFlow</em>)]</a>
+            * [Code](#code)
+            * [Code annotation](#code-annotation)
+            * [Steps to reproduce WMT14 English-German result:](#steps-to-reproduce-wmt14-english-german-result)
+            * [Resources](#resources)
+        * [Harvard NLP Group's implementation: OpenNMT-py(using <em>PyTorch</em>)](#harvard-nlp-groups-implementation-opennmt-pyusing-pytorch)
+             * [Code](#code-1)
+             * [Steps to reproduce WMT14 English-German result:](#steps-to-reproduce-wmt14-english-german-result-1)
+             * [Resources](#resources-1)
+        * [FAIR's implementation: fairseq-py(using <em>PyTorch</em>)](#fairs-implementation-fairseq-pyusing-pytorch)
+             * [Code](#code-2)
+             * [Steps to reproduce WMT14 English-German result:](#steps-to-reproduce-wmt14-english-german-result-2)
+             * [Resources](#resources-2)
+        * [Complex, not certainly performance-reproducable implementations](#complex-not-certainly-performance-reproducable-implementations)
+* [Training tips](#training-tips)
+* [Further](#further)
+* [Contributors](#contributors)
+      
 ## Why this project?
 
 Transformer is a powerful model applied in sequence to sequence learning. However, when we were using transformer as our baseline in NMT research we found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means our research would be unauthentic. We collected some implementations, obtained corresponding performance-reproducable approaches and other materials, which eventually formed this project.
@@ -151,66 +176,68 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     For example:
     
     ```shell
-    python preprocess.py 
-        -train_src ../wmt-en-de/train.en.shuf 
-        -train_tgt ../wmt-en-de/train.de.shuf 
-        -valid_src ../wmt-en-de/valid.en 
-        -valid_tgt ../wmt-en-de/valid.de 
-        -save_data ../wmt-en-de/processed 
-        -src_seq_length 100 
-        -tgt_seq_length 100 
-        -max_shard_size 200000000 
+    python preprocess.py \
+        -train_src ../wmt-en-de/train.en.shuf \
+        -train_tgt ../wmt-en-de/train.de.shuf \
+        -valid_src ../wmt-en-de/valid.en \
+        -valid_tgt ../wmt-en-de/valid.de \
+        -save_data ../wmt-en-de/processed \
+        -src_seq_length 100 \
+        -tgt_seq_length 100 \
+        -max_shard_size 200000000 \
         -share_vocab
     ```
         
 3. Train. For example, if you only have 4 GPU:
     ```shell
-    python  train.py 
-        -data /tmp/de2/data 
-        -save_model /tmp/extra 
-        -layers 6 
-        -rnn_size 512 
-        -word_vec_size 512 
-        -transformer_ff 2048 
-        -heads 8  
-        -encoder_type transformer 
-        -decoder_type transformer 
-        -position_encoding 
-        -train_steps 200000  
-        -max_generator_batches 2 
-        -dropout 0.1 
-        -batch_size 4096 
-        -batch_type tokens 
-        -normalization tokens  
-        -accum_count 2 
-        -optim adam 
-        -adam_beta2 0.998 
-        -decay_method noam 
-        -warmup_steps 8000
-        -learning_rate 2 
-        -max_grad_norm 0 
-        -param_init 0  
-        -param_init_glorot 
-        -label_smoothing 0.1 
-        -valid_steps 10000 
-        -save_checkpoint_steps 10000 
+    python  train.py \
+        -data /tmp/de2/data \
+        -save_model /tmp/extra \
+        -layers 6 \
+        -rnn_size 512 \
+        -word_vec_size 512 \
+        -transformer_ff 2048 \
+        -heads 8 \
+        -encoder_type transformer \
+        -decoder_type transformer \
+        -position_encoding \
+        -train_steps 200000 \
+        -max_generator_batches 2 \
+        -dropout 0.1 \
+        -batch_size 4096 \
+        -batch_type tokens \
+        -normalization tokens \
+        -accum_count 2 \
+        -optim adam \
+        -adam_beta2 0.998 \
+        -decay_method noam \
+        -warmup_steps 8000 \
+        -learning_rate 2 \
+        -max_grad_norm 0 \
+        -param_init 0 \
+        -param_init_glorot \
+        -label_smoothing 0.1 \
+        -valid_steps 10000 \
+        -save_checkpoint_steps 10000 \
         -gpuid 0 1 2 3 
     ```
     
     <a id="accum_count"/>Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.
         
 4. Translate. For example:
+
     ```shell
-    python translate.py -gpu 0 -replace_unk -alpha 0.6 -beta 0.0 -beam_size 5 
+    python translate.py -gpu 0 -replace_unk -alpha 0.6 -beta 0.0 -beam_size 5 \
     -length_penalty wu -coverage_penalty wu -share_vocab vocab_file -max_length 200 -src newstest2014.en.32kspe
     ```
         
     Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. **Note that there must be sentencepiece installed.**
+    
     ```shell
     spm_encode --model=<model_file> --output_format=piece < newstest2014.en > newstest2014.en.32kspe
     ```
 
-    You can set `-batch_size`(default 30) larger to boost the translation.
+    You can set `-batch_size`(default `30`) larger to boost the translation.
         
 5. Detokenization. Since training data is processed by [sentencepiece](https://github.com/google/sentencepiece), step 4's translation should be sentencepiece-encoded style, so we need a decoding procedure. 
     For example: 
@@ -220,7 +247,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
     You can find `<model_file>`in step 1's downloaded archive.
     
-    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow because it is original.
+    As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction, actually we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
 
 ##### Resources
 
