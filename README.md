@@ -230,8 +230,8 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
    You can set `-batch_size`(default `30`) larger to boost the translation.
    
     ```shell
-    python translate.py -gpu 0 -replace_unk -alpha 0.6 -beta 0.0 -beam_size 5 \
-    -length_penalty wu -coverage_penalty wu -share_vocab vocab_file -max_length 200 -src newstest2014.en.32kspe
+    python translate.py -gpu 0 -replace_unk -alpha 0.6 -beta 0.0 -beam_size 5 -length_penalty wu -coverage_penalty wu \
+         -share_vocab vocab_file -max_length 200 -model model_file -src newstest2014.en.32kspe -output model.pred -verbose
     ```
         
     Note that testset in corpus preprocessed by OpenNMT is newstest2017 while it is newstest2014 in original paper, which may be a mistake. To obtain newstest2014 testset as in paper, here we can use sentencepiece to encode `newstest2014.en` manually. You can find `<model_file>`in step 1's downloaded archive.
