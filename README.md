@@ -28,7 +28,7 @@ Please feel free to pull requests or report issues.
              * [Code](#code-2)
              * [Steps to reproduce WMT14 English-German result:](#steps-to-reproduce-wmt14-english-german-result-2)
              * [Resources](#resources-2)
-        * [Complex, not certainly performance-reproducable implementations](#complex-not-certainly-performance-reproducable-implementations)
+    * [Complex, not certainly performance-reproducable implementations](#complex-not-certainly-performance-reproducable-implementations)
 * [Training tips](#training-tips)
 * [Further](#further)
 * [Contributors](#contributors)
