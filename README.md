@@ -79,7 +79,7 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 
 ### Complex, performance-reproducable implementations
 
-Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count`.
+Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count` and <a href="#update_freq">fairseq</a> `--update-freq`.
     
 We recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
@@ -100,7 +100,7 @@ As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/s
 
 ##### Steps to reproduce WMT14 English-German result:
 
-Note that this implementation's code doesn't have `-accum_count`-like feature as <a href="accum_count">OpenNMT-py</a>, so you can **either train on 8 GPUs or modify code to add this feature.**
+Note that this code doesn't have `-accum_count`-like feature as <a href="#accum_count">OpenNMT-py</a> or `--update-freq`-like feature as <a href="#update_freq">fairseq</a>, so you can **either train on 8 GPUs or modify code to add this feature.**
 
 ```shell
 # 1. Install tensor2tensor toolkit
@@ -261,7 +261,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
 ##### Steps to reproduce WMT14 English-German result:
 
-Note that this implementation's code doesn't have `-accum_count`-like feature as <a href="accum_count">OpenNMT-py</a>), so you can **either train on 8 GPUs or modify code to add this feature.**
+<a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
 - <a id="instruction">fairseq-py instruction(https://github.com/pytorch/fairseq/tree/master/examples/translation)</span>
 
@@ -281,6 +281,7 @@ Note that this implementation's code doesn't have `-accum_count`-like feature as
 
 - [NMT's latest papers](http://arxiv-sanity.com/search?q=machine+translation)
 - RNMT+: [The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation](https://arxiv.org/abs/1804.09849)
+- [Scaling Neural Machine Translation](https://arxiv.org/abs/1806.00187)
 - Turing-complete Transformer: [Universal Transformer](https://arxiv.org/abs/1807.03819)
 
 ## Contributors
