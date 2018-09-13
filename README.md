@@ -263,11 +263,11 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
-- <a id="instruction">fairseq-py instruction(https://github.com/pytorch/fairseq/tree/master/examples/translation)</span>
+- [fairseq-py instruction](https://github.com/pytorch/fairseq/tree/master/examples/translation)
 
 ##### Resources
 
-- [fairseq-py issue](https://github.com/pytorch/fairseq/issues/202). The corpus problem described in the issue has been fixed now, so we can directly follow the <a href="#instruction">instruction</a>.
+- [fairseq-py issue](https://github.com/pytorch/fairseq/issues/202). The corpus problem described in the issue has been fixed now, so we can directly follow the instruction above.
 
 ### Complex, not certainly performance-reproducable implementations
 
