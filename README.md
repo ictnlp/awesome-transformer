@@ -1,4 +1,4 @@
-<p align="center"><img src="http://o9h9w1ysg.bkt.clouddn.com/blog/180905/ecLK7hbl8L.jpg"></p>
+<p align="center"><img src="https://i.loli.net/2018/11/03/5bdd66a85e6d3.jpg"></p>
 
 <p align="center">
 <a href="https://raw.githubusercontent.com/SkyAndCloud/awesome-transformer/master/LICENSE"><img src="https://img.shields.io/cocoapods/l/Kingfisher.svg?style=flat"></a>
@@ -46,7 +46,7 @@ Transformer is a powerful model applied in sequence to sequence learning. Howeve
 - seq2seq using CGRU: [DL4MT](https://github.com/nyu-dl/dl4mt-tutorial)
 - GNMT: [Google’s Neural Machine Translation System: Bridging the Gap between Human and Machine Translation](https://arxiv.org/abs/1609.08144)
 - bytenet: [Neural Machine Translation in Linear Time](https://arxiv.org/abs/1610.10099)
-- convolutional-style NMT: [Convolutional Sequence to Sequence Learning](https://arxiv.org/abs/1705.03122)
+- convolutional NMT: [Convolutional Sequence to Sequence Learning](https://arxiv.org/abs/1705.03122)
 - bpe: [Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909)
 - word piece: [Japanese and Korean Voice Search](https://ieeexplore.ieee.org/document/6289079/)
 - self attention paper: [A Structured Self-attentive Sentence Embedding](https://arxiv.org/abs/1703.03130)
@@ -98,9 +98,7 @@ As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/s
 
 - [“变形金刚”为何强大：从模型到代码全面解析Google Tensor2Tensor系统](https://cloud.tencent.com/developer/article/1153079)(only Chinese version, corresponding to tensor2tensor v1.6.3)
 
-##### Steps to reproduce WMT14 English-German result:
-
-Note that this code doesn't have `-accum_count`-like feature as <a href="#accum_count">OpenNMT-py</a> or `--update-freq`-like feature as <a href="#update_freq">fairseq</a>, so you can **either train on 8 GPUs or modify code to add this feature.**
+##### Steps to reproduce WMT14 English-German result: 
 
 ```shell
 # 1. Install tensor2tensor toolkit
@@ -156,6 +154,20 @@ cat $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode |
 perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe > $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe.atat
 ```
 
+If you have only 1 GPU, you can use `transformer_base_multistep8` hparams to imitate 8 GPU.
+![transformer_base_multistep8](https://i.loli.net/2018/11/03/5bdd6a22ae29a.png)
+ You can also modify `transformer_base_multistep8` function to accumulate gradient times you want. Here is an example using 4 GPU to run transformer big model. Note that `hparams.optimizer_multistep_accumulate_steps = 2` since we only need to accumulate gradient twice for 4 GPU.
+
+ ```python
+@registry.register_hparams
+def transformer_base_multistep8():
+  """HParams for simulating 8 GPUs with MultistepAdam optimizer."""
+  hparams = transformer_big()
+  hparams.optimizer = "MultistepAdam"
+  hparams.optimizer_multistep_accumulate_steps = 2
+  return hparams
+ ```
+
 ##### Resources
 - [t2t issue 539](https://github.com/tensorflow/tensor2tensor/issues/539)
 - [t2t issue 444](https://github.com/tensorflow/tensor2tensor/issues/444)
@@ -192,36 +204,15 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
         
 3. Train. For example, if you only have 4 GPU:
     ```shell
-    python  train.py \
-        -data /tmp/de2/data \
-        -save_model /tmp/extra \
-        -layers 6 \
-        -rnn_size 512 \
-        -word_vec_size 512 \
-        -transformer_ff 2048 \
-        -heads 8 \
-        -encoder_type transformer \
-        -decoder_type transformer \
-        -position_encoding \
-        -train_steps 200000 \
-        -max_generator_batches 2 \
-        -dropout 0.1 \
-        -batch_size 4096 \
-        -batch_type tokens \
-        -normalization tokens \
-        -accum_count 2 \
-        -optim adam \
-        -adam_beta2 0.998 \
-        -decay_method noam \
-        -warmup_steps 8000 \
-        -learning_rate 2 \
-        -max_grad_norm 0 \
-        -param_init 0 \
-        -param_init_glorot \
-        -label_smoothing 0.1 \
-        -valid_steps 10000 \
-        -save_checkpoint_steps 10000 \
-        -gpuid 0 1 2 3 
+    python  train.py -data /tmp/de2/data -save_model /tmp/extra \
+        -layers 6 -rnn_size 512 -word_vec_size 512 -transformer_ff 2048 -heads 8  \
+        -encoder_type transformer -decoder_type transformer -position_encoding \
+        -train_steps 200000  -max_generator_batches 2 -dropout 0.1 \
+        -batch_size 4096 -batch_type tokens -normalization tokens  -accum_count 2 \
+        -optim adam -adam_beta2 0.998 -decay_method noam -warmup_steps 8000 -learning_rate 2 \
+        -max_grad_norm 0 -param_init 0  -param_init_glorot \
+        -label_smoothing 0.1 -valid_steps 10000 -save_checkpoint_steps 10000 \
+        -world_size 4 -gpu_ranks 0 1 2 3 
     ```
     
     <a id="accum_count"/>Note that here `-accum_count` means every `N` batches accumulating loss to backward, so it's 2 for 4 GPUs and so on.
@@ -247,6 +238,8 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     spm_decode --model=<model_file> --input_format=piece < input > output
     ```
 
+6. There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) WMT'16 ENDE corpus preprocessed by Google. See [subword-nmt](https://github.com/rsennrich/subword-nmt) for bpe encoding and decoding.
+
 ##### Resources
 
 - [OpenNMT-py FAQ](http://opennmt.net/OpenNMT-py/FAQ.html)
@@ -263,7 +256,7 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
-- [fairseq-py instruction](https://github.com/pytorch/fairseq/tree/master/examples/translation)
+- [fairseq-py example](https://github.com/pytorch/fairseq/tree/master/examples/translation)
 
 ##### Resources
 
@@ -279,10 +272,12 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 ## Further
 
-- [NMT's latest papers](http://arxiv-sanity.com/search?q=machine+translation)
 - RNMT+: [The Best of Both Worlds: Combining Recent Advances in Neural Machine Translation](https://arxiv.org/abs/1804.09849)
 - [Scaling Neural Machine Translation](https://arxiv.org/abs/1806.00187)
 - Turing-complete Transformer: [Universal Transformer](https://arxiv.org/abs/1807.03819)
+- [Self-Attention with Relative Position Representations](https://arxiv.org/abs/1803.02155)
+- [Improving Language Understanding by Generative Pre-Training](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf)
+- [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
 
 ## Contributors
 
