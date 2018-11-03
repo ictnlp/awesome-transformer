@@ -54,7 +54,7 @@ Transformer is a powerful model applied in sequence to sequence learning. Howeve
 ### Transformer original paper
 
 <p align="center">
-<a><img src="http://o9h9w1ysg.bkt.clouddn.com/blog/180904/41BagIeFk9.png"></a>
+<a><img width=50% src="https://i.loli.net/2018/11/03/5bdd7052d8b63.png"></a>
 </p>
 
 - [Attention is All You Need](https://arxiv.org/abs/1706.03762)
@@ -64,7 +64,7 @@ Transformer is a powerful model applied in sequence to sequence learning. Howeve
 Indeed there are lots of transformer implementations on the Internet, in order to simplify learning curve, here we only include **the most valuable** projects.
 
 >**[Note]**: In transformer original paper, there are *WMT14 English-German*, *WMT14 English-French* two results
-    ![results](http://o9h9w1ysg.bkt.clouddn.com/blog/180904/B4mbH19CBD.png)
+   ![transformer result](https://i.loli.net/2018/11/03/5bdd701614ba1.png)
 Here we regard a implementation as performance-reproducable **if there exists approaches to reproduce WMT14 English-German BLEU score**. Therefore, we'll also support corresponding approach to reproduce *WMT14 English-German* result.
 
 ### Minimal, paper-equavalent but not certainly performance-reproducable implementations(both *PyTorch* implementations)
@@ -155,7 +155,9 @@ perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32
 ```
 
 If you have only 1 GPU, you can use `transformer_base_multistep8` hparams to imitate 8 GPU.
+
 ![transformer_base_multistep8](https://i.loli.net/2018/11/03/5bdd6a22ae29a.png)
+ 
  You can also modify `transformer_base_multistep8` function to accumulate gradient times you want. Here is an example using 4 GPU to run transformer big model. Note that `hparams.optimizer_multistep_accumulate_steps = 2` since we only need to accumulate gradient twice for 4 GPU.
 
  ```python
