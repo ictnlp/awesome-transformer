@@ -262,7 +262,7 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
 
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
-1. Download [the preprocessed WMT'16 EN-DE data provided by Google] (https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) and extract it.
+1. Download [the preprocessed WMT'16 EN-DE data provided by Google](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) and extract it.
 
     ```
     TEXT=wmt16_en_de_bpe32k
