@@ -79,14 +79,14 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 
 ### Complex, performance-reproducable implementations
 
-Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process and so on. This trick is implemented in <a href="#accum_count">OpenNMT-py</a> `-accum_count` and <a href="#update_freq">fairseq</a> `--update-freq`.
+Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process. See each implementation's guide for details.
     
-We recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient,  to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
+Although original paper used `multi-bleu.perl` to evaluate bleu score, we recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient, to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
 
 The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base` function.
 
-As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction but we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is original.
+As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/scripts/wmt) also has a replicable instruction but we prefer <a href="#t2t">tensor2tensor</a> as a baseline to reproduce paper's result if we have to use TensorFlow since it is official.
 
 #### <a id="t2t"/>Paper's original implementation: tensor2tensor(using *TensorFlow*)
 
@@ -148,11 +148,13 @@ t2t-decoder \
   --decode_from_file=$DECODE_FILE \
   --decode_to_file=$TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode
 
-# 6. Debpe and detokenization for prediction.
+# 6. Debpe
 cat $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode | sed 's/@@ //g' > $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe
 #Do compound splitting on the translation
 perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe > $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe.atat
 ```
+
+<a id="compound_split"/>**Note that step 6 remains a postprocessing**. For some historical reasons, Google split compound words before getting the final BLEU results which will bring moderate increase. see [get_ende_bleu.sh](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/utils/get_ende_bleu.sh) for more details.
 
 If you have only 1 GPU, you can use `transformer_base_multistep8` hparams to imitate 8 GPU.
 
@@ -240,7 +242,9 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
     spm_decode --model=<model_file> --input_format=piece < input > output
     ```
 
-6. There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) WMT'16 ENDE corpus preprocessed by Google. See [subword-nmt](https://github.com/rsennrich/subword-nmt) for bpe encoding and decoding.
+6. <a href="#compound_split">Postprocess</a>
+
+There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) WMT'16 ENDE corpus preprocessed by Google. See [subword-nmt](https://github.com/rsennrich/subword-nmt) for bpe encoding and decoding.
 
 ##### Resources
 
@@ -258,10 +262,79 @@ For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-p
 
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
-- [fairseq-py example](https://github.com/pytorch/fairseq/tree/master/examples/translation)
+1. Download [the preprocessed WMT'16 EN-DE data provided by Google] (https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) and extract it.
+
+    ```
+    TEXT=wmt16_en_de_bpe32k
+    mkdir $TEXT
+    tar -xzvf wmt16_en_de.tar.gz -C $TEXT
+    ```
+
+2. Preprocess the dataset with a joined dictionary
+
+    ```
+    python preprocess.py --source-lang en --target-lang de \
+            --trainpref $TEXT/train.tok.clean.bpe.32000 \
+            --validpref $TEXT/newstest2013.tok.bpe.32000 \
+            --testpref $TEXT/newstest2014.tok.bpe.32000 \
+            --destdir data-bin/wmt16_en_de_bpe32k \
+            --nwordssrc 32768 --nwordstgt 32768 \
+            --joined-dictionary
+    ```
+
+3. Train. For a base model.
+
+    ```
+    # train about 180k steps
+    python train.py data-bin/wmt16_en_de_bpe32k \
+        --arch transformer_vaswani_wmt_en_de --share-all-embeddings \
+        --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
+        --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 4000 \
+        --lr 0.0007 --min-lr 1e-09 \
+        --dropout 0.3 --weight-decay 0.0 --criterion label_smoothed_cross_entropy \ 
+        --label-smoothing 0.1 --max-tokens 4096 --update 2 \
+        --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000 \
+        --keep-interval-updates 5
+    # average last 5 checkpoints
+    modelfile=checkpoints
+    python scripts/average_checkpoints.py --inputs $modelfile --num-update-checkpoints 5 \
+        --output $modelfile/average-model.pt
+    ```
+
+    For a big model.
+    ```
+    # train about 270k steps
+    python train.py data-bin/wmt16_en_de_bpe32k \
+        --arch transformer_vaswani_wmt_en_de_big --share-all-embeddings \
+        --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
+        --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 4000 \
+        --lr 0.0005 --min-lr 1e-09 \
+        --dropout 0.3 --weight-decay 0.0 --criterion label_smoothed_cross_entropy \		
+        --label-smoothing 0.1 --max-tokens 4096 --update-freq 2\
+        --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000\
+        --keep-interval-updates 20
+    # average last 20 checkpoints
+    modelfile=checkpoints
+    python scripts/average_checkpoints.py --inputs $modelfile --num-update-checkpoints 20 \ 
+        --output $modelfile/average-model.pt
+    ```
+
+4. Inference
+    ```
+    TEXT=wmt16_en_de_bpe32k
+    model=average-model.pt
+    subset=test
+    python generate.py data-bin/wmt16_en_de_bpe32k_pretrain --path $modelfile/$model \
+        --gen-subset $subset --beam 4 --batch-size 128 --remove-bpe --lenpen 0.6 > pred.de
+    # because fairseq's output is unordered, we need to recover its order
+    grep ^H pred.de | cut -f1,3- | cut -c3- | sort -k1n | cut -f2- | tr -d ' ' > pred.de
+    ```
+
+5. <a href="#compound_split">Postprocess</a>
 
 ##### Resources
 
+- [fairseq-py example](https://github.com/pytorch/fairseq/tree/master/examples/translation)
 - [fairseq-py issue](https://github.com/pytorch/fairseq/issues/202). The corpus problem described in the issue has been fixed now, so we can directly follow the instruction above.
 
 ### Complex, not certainly performance-reproducable implementations
@@ -287,3 +360,4 @@ This project is developed and maintained by Natural Language Processing Group, I
 
 - [Yong Shan](https://github.com/SkyAndCloud)
 - [Jinchao Zhang](https://github.com/zhangjcqq)
+- Shuhao Gu
