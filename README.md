@@ -321,10 +321,9 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
 
 4. Inference
     ```
-    TEXT=wmt16_en_de_bpe32k
     model=average-model.pt
     subset=test
-    python generate.py data-bin/wmt16_en_de_bpe32k_pretrain --path $modelfile/$model \
+    python generate.py data-bin/wmt16_en_de_bpe32k --path $modelfile/$model \
         --gen-subset $subset --beam 4 --batch-size 128 --remove-bpe --lenpen 0.6 > pred.de
     # because fairseq's output is unordered, we need to recover its order
     grep ^H pred.de | cut -f1,3- | cut -c3- | sort -k1n | cut -f2- | tr -d ' ' > pred.de
