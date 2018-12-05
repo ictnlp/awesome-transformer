@@ -79,7 +79,7 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 
 ### Complex, performance-reproducable implementations
 
-Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process. See each implementation's guide for details.
+Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process. **You'd better assemble `gpu_count`, `tokens_on_each_gpu` and `gradient_accumulation_count` to satisfy `gpu_count * tokens_on_each_gpu * gradient_accumulation_count = 4096 * 8`**. See each implementation's guide for details.
     
 Although original paper used `multi-bleu.perl` to evaluate bleu score, we recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient, to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
 **Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
@@ -99,6 +99,8 @@ As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/s
 - [“变形金刚”为何强大：从模型到代码全面解析Google Tensor2Tensor系统](https://cloud.tencent.com/developer/article/1153079)(only Chinese version, corresponding to tensor2tensor v1.6.3)
 
 ##### Steps to reproduce WMT14 English-German result: 
+
+**updated on v1.10.0**
 
 ```shell
 # 1. Install tensor2tensor toolkit
@@ -186,6 +188,8 @@ def transformer_base_multistep8():
         
 ##### Steps to reproduce WMT14 English-German result:
 
+**updated on v0.5.0**
+
 For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)
 
 1. Download [corpus preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp.tar.gz), [sentencepiece model preprocessed by OpenNMT](https://s3.amazonaws.com/opennmt-trainingdata/wmt_ende_sp_model.tar.gz). Note that the preprocess procedure includes tokenization, bpe/word-piece operation(here using [sentencepiece](https://github.com/google/sentencepiece) powered by Google which implements word-piece algorithm), see [OpenNMT-tf script](https://github.com/OpenNMT/OpenNMT-tf/blob/master/scripts/wmt/prepare_data.sh) for more details.
@@ -260,6 +264,8 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
         
 ##### Steps to reproduce WMT14 English-German result:
 
+**updated on commit `7e60d45`**
+
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
 1. Download [the preprocessed WMT'16 EN-DE data provided by Google](https://drive.google.com/uc?export=download&id=0B_bZck-ksdkpM25jRUN2X2UxMm8) and extract it.
@@ -292,7 +298,7 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
         --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 4000 \
         --lr 0.0007 --min-lr 1e-09 \
         --dropout 0.3 --weight-decay 0.0 --criterion label_smoothed_cross_entropy \ 
-        --label-smoothing 0.1 --max-tokens 4096 --update 2 \
+        --label-smoothing 0.1 --max-tokens 4096 --update-freq 2 \
         --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000 \
         --keep-interval-updates 5
     # average last 5 checkpoints
