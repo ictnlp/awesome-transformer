@@ -293,11 +293,11 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
     ```
     # train about 180k steps
     python train.py data-bin/wmt16_en_de_bpe32k \
-        --arch transformer_vaswani_wmt_en_de --share-all-embeddings \
+        --arch transformer_wmt_en_de --share-all-embeddings \
         --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
         --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 4000 \
         --lr 0.0007 --min-lr 1e-09 \
-        --dropout 0.3 --weight-decay 0.0 --criterion label_smoothed_cross_entropy \ 
+        --weight-decay 0.0 --criterion label_smoothed_cross_entropy \ 
         --label-smoothing 0.1 --max-tokens 4096 --update-freq 2 \
         --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000 \
         --keep-interval-updates 5
@@ -315,9 +315,9 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
         --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
         --lr-scheduler inverse_sqrt --warmup-init-lr 1e-07 --warmup-updates 4000 \
         --lr 0.0005 --min-lr 1e-09 \
-        --dropout 0.3 --weight-decay 0.0 --criterion label_smoothed_cross_entropy \		
+        --weight-decay 0.0 --criterion label_smoothed_cross_entropy \		
         --label-smoothing 0.1 --max-tokens 4096 --update-freq 2\
-        --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000\
+        --no-progress-bar --log-format json --log-interval 10 --save-interval-updates 1000 \
         --keep-interval-updates 20
     # average last 20 checkpoints
     modelfile=checkpoints
@@ -332,7 +332,7 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
     python generate.py data-bin/wmt16_en_de_bpe32k --path $modelfile/$model \
         --gen-subset $subset --beam 4 --batch-size 128 --remove-bpe --lenpen 0.6 > pred.de
     # because fairseq's output is unordered, we need to recover its order
-    grep ^H pred.de | cut -f1,3- | cut -c3- | sort -k1n | cut -f2- | tr -d ' ' > pred.de
+    grep ^H pred.de | cut -f1,3- | cut -c3- | sort -k1n | cut -f2- > pred.de
     ```
 
 5. <a href="#compound_split">Postprocess</a>
