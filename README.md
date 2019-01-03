@@ -82,7 +82,17 @@ Here we regard a implementation as performance-reproducable **if there exists ap
 Because transformer's original implementation should run on **8 GPU** to replicate corresponding result, where each GPU loads one batch and after forward propagation 8 batch's loss is summed to execute backward operation, so we can **accumulate every 8 batch's loss** to execute backward operation if we **only have 1 GPU** to imitate this process. **You'd better assemble `gpu_count`, `tokens_on_each_gpu` and `gradient_accumulation_count` to satisfy `gpu_count * tokens_on_each_gpu * gradient_accumulation_count = 4096 * 8`**. See each implementation's guide for details.
     
 Although original paper used `multi-bleu.perl` to evaluate bleu score, we recommend using [sacrebleu](https://github.com/awslabs/sockeye/tree/master/contrib/sacrebleu), which should be equivalent to `mteval-v13a.pl` but more convenient, to calculate bleu score and report the signature as `BLEU+case.mixed+lang.de-en+test.wmt17 = 32.97 66.1/40.2/26.6/18.1 (BP = 0.980 ratio = 0.980 hyp_len = 63134 ref_len = 64399)` for easy reproduction.
-**Note that sacrebleu already has an inner-tokenizer, so the text should be untokenized version.**
+
+```
+# calculate lowercase bleu on all tokenized text
+cat model_prediction | sacrebleu -tok none -lc ground_truth
+# calculate lowercase bleu on all tokenized text if you have 3 ground truth
+cat model_prediction | sacrebleu -tok none -lc ground_truth_1 ground_truth_2 ground_truth_3 
+# calculate lowercase bleu on all untokenized romance-language text using v13a tokenization
+cat model_prediction | sacrebleu -tok 13a -lc ground_truth
+# calculate lowercase bleu on all untokenized romance-language text using v14 tokenization
+cat model_prediction | sacrebleu -tok intl -lc ground_truth
+```
 
 The transformer paper's original model settings can be found in [tensor2tensor transformer.py](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/models/transformer.py). For example, You can find `base model configs` in`transformer_base` function.
 
@@ -100,7 +110,7 @@ As you can see, [OpenNMT-tf](https://github.com/OpenNMT/OpenNMT-tf/tree/master/s
 
 ##### Steps to reproduce WMT14 English-German result: 
 
-**updated on v1.10.0**
+**(updated on v1.10.0)**
 
 ```shell
 # 1. Install tensor2tensor toolkit
@@ -152,8 +162,10 @@ t2t-decoder \
 
 # 6. Debpe
 cat $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode | sed 's/@@ //g' > $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe
-#Do compound splitting on the translation
+# Do compound splitting on the translation
 perl -ple 's{(\S)-(\S)}{$1 ##AT##-##AT## $2}g' < $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe > $TMP_DIR/newstest2014.en.tok.32kbpe.transformer_base.beam5.alpha0.6.decode.debpe.atat
+# Do same compound splitting on the ground truth and then score bleu
+# ...
 ```
 
 <a id="compound_split"/>**Note that step 6 remains a postprocessing**. For some historical reasons, Google split compound words before getting the final BLEU results which will bring moderate increase. see [get_ende_bleu.sh](https://github.com/tensorflow/tensor2tensor/blob/master/tensor2tensor/utils/get_ende_bleu.sh) for more details.
