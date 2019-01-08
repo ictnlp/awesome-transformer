@@ -200,7 +200,7 @@ def transformer_base_multistep8():
         
 ##### Steps to reproduce WMT14 English-German result:
 
-**updated on v0.5.0**
+**(updated on v0.5.0)**
 
 For command arguments meaning, see [OpenNMT-py doc](http://opennmt.net/OpenNMT-py/main.html) or [OpenNMT-py opts.py](https://github.com/OpenNMT/OpenNMT-py/blob/master/onmt/opts.py)
 
@@ -276,7 +276,7 @@ There is also a [bpe-version](https://drive.google.com/uc?export=download&id=0B_
         
 ##### Steps to reproduce WMT14 English-German result:
 
-**updated on commit `7e60d45`**
+**(updated on commit `7e60d45`)**
 
 <a id="update_freq"/>For arguments meaning, see [doc](https://fairseq.readthedocs.io/en/latest/command_line_tools.html). Note that we can use `--update-freq` when training to accumulate every `N` batches loss to backward, so it's `8` for 1 GPU, `2` for 4 GPUs and so on.
 
