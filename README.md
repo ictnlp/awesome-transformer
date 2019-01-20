@@ -8,11 +8,11 @@ A collection of transformer's guides, implementations and so on(For those who wa
 
 Please feel free to pull requests or report issues.
 
-* [Why this project?](#why-this-project)
+* [Why this project](#why-this-project)
 * [Papers](#papers)
     * [NMT Basic](#nmt-basic)
     * [Transformer original paper](#transformer-original-paper)
-* [Implementations &amp; How to reproduce paper's result?](#implementations--how-to-reproduce-papers-result)
+* [Implementations &amp; How to reproduce paper's result](#implementations--how-to-reproduce-papers-result)
     * [Minimal, paper-equavalent but not certainly performance-reproducable implementations(both <em>PyTorch</em> implementations)](#minimal-paper-equavalent-but-not-certainly-performance-reproducable-implementationsboth-pytorch-implementations)
     * [Complex, performance-reproducable implementations](#complex-performance-reproducable-implementations)
         * <a href="#t2t">Paper's original implementation: tensor2tensor(using <em>TensorFlow</em>)]</a>
@@ -33,7 +33,7 @@ Please feel free to pull requests or report issues.
 * [Further](#further)
 * [Contributors](#contributors)
       
-## Why this project?
+## Why this project
 
 Transformer is a powerful model applied in sequence to sequence learning. However, when we were using transformer as our baseline in NMT research we found no good & reliable guide to reproduce approximate result as reported in original paper(even official <a href="#t2t">tensor2tensor</a> implementation), which means our research would be unauthentic. We collected some implementations, obtained corresponding performance-reproducable approaches and other materials, which eventually formed this project.
 
@@ -59,7 +59,7 @@ Transformer is a powerful model applied in sequence to sequence learning. Howeve
 
 - [Attention is All You Need](https://arxiv.org/abs/1706.03762)
 
-## Implementations & How to reproduce paper's result?
+## Implementations & How to reproduce paper's result
 
 Indeed there are lots of transformer implementations on the Internet, in order to simplify learning curve, here we only include **the most valuable** projects.
 
